@@ -136,7 +136,7 @@ function island(s){const W=s>0?'blue':'red',inP=(x,z)=>Math.abs(x)<=1&&Math.abs(
  for(const x0 of[-7,5])for(let x=x0;x<=x0+2;x++)for(let z=17;z<=19;z++){for(let y=1;y<=7;y++)addB(x,y,z*s,W,0);if((x+z)%2===0)addB(x,8,z*s,'quartz',0)}
  for(const x of[-3,3])for(const z of[PIT-2,PIT+2])for(let y=1;y<=2;y++)addB(x,y,z*s,'obs',0)}
 island(1);island(-1);
-function midBridge(){for(let z=-15;z<=15;z++)for(let y=0;y>=-5;y--)addB(0,y,z,'stone',1)}midBridge();
+function midBridge(){for(let z=-15;z<=15;z++)for(let y=0;y>=-5;y--)addB(0,y,z,'stone',0)}midBridge();
 
 /* ---------- eşya ikonları ---------- */
 function icon(fn){const c=mk(16,16),g=c.getContext('2d');fn((x,y,col)=>{g.fillStyle=col;g.fillRect(x,y,1,1)},g);return c}
@@ -326,7 +326,7 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>{keys[e.code]=false;if(e.code===binds.forward)tapSprint=false});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.l=mouse.r=false;tapSprint=false});
-addEventListener('mousemove',e=>{if(!locked()||game.paused)return;player.yaw-=e.movementX*mouseSensitivity;player.pitch=Math.max(-1.5,Math.min(1.5,player.pitch-e.movementY*mouseSensitivity))});
+addEventListener('mousemove',e=>{if(!locked()||game.paused)return;if(Math.abs(e.movementX)>200||Math.abs(e.movementY)>200)return;player.yaw-=e.movementX*mouseSensitivity;player.yaw=Math.atan2(Math.sin(player.yaw),Math.cos(player.yaw));player.pitch=Math.max(-1.5,Math.min(1.5,player.pitch-e.movementY*mouseSensitivity))});
 addEventListener('mousedown',e=>{if(!locked())return;if(e.button===0)mouse.l=true;if(e.button===2)mouse.r=true});
 addEventListener('mouseup',e=>{if(e.button===0)mouse.l=false;if(e.button===2)mouse.r=false});
 addEventListener('contextmenu',e=>e.preventDefault());
@@ -520,12 +520,12 @@ function updCam(dt){const p=player,sp=Math.hypot(p.vel.x,p.vel.z);bobP+=p.onGrou
  const eye=eyeOf(p);eye.y-=p.land;eye.y+=Math.abs(Math.sin(bobP))*.04*bob;
  fov+=((p.sprint?80:70)-fov)*Math.min(1,dt*8);if(Math.abs(cam.fov-fov)>.05){cam.fov=fov;cam.updateProjectionMatrix()}
  const d=lookOf(p),v=game.view;
- if(v===0){cam.position.copy(eye);cam.rotation.set(p.pitch,p.yaw,Math.sin(bobP)*.012*bob)}
+ if(v===0){cam.position.copy(eye);cam.rotation.set(p.pitch,p.yaw,0)}
  else if(v===1){cam.position.copy(eye).addScaledVector(d,-4);cam.rotation.set(p.pitch,p.yaw,0)}
  else{cam.position.copy(eye).addScaledVector(d,4);cam.rotation.set(-p.pitch,p.yaw+Math.PI,0)}
  hand.visible=v===0;offHandView.visible=v===0&&p.offhand>=0;player.model.g.visible=v>0;
  fpArm.visible=true;fpI.forEach((m,k)=>m.visible=k===heldItem(p));fpOffArm.visible=p.offhand>=0;fpOffI.forEach((m,k)=>m.visible=k===p.offhand);
- const sw=1-p.swing;hand.rotation.x=p.swing>0?-Math.sin(sw*Math.PI)*.9:0;hand.position.set(Math.sin(bobP)*.015*bob,-Math.abs(Math.cos(bobP))*.02*bob+(p.eat>0?.12+Math.sin(p.eat*20)*.02:0)+(p.draw>0?.05:0),p.swing>0?-Math.sin(sw*Math.PI)*.2:0);offHandView.position.set(-Math.sin(bobP)*.015*bob,-Math.abs(Math.cos(bobP))*.02*bob,0)}
+ const sw=1-p.swing;hand.rotation.x=p.swing>0?-Math.sin(sw*Math.PI)*.9:0;hand.position.set(0,-Math.abs(Math.cos(bobP))*.02*bob+(p.eat>0?.12+Math.sin(p.eat*20)*.02:0)+(p.draw>0?.05:0),p.swing>0?-Math.sin(sw*Math.PI)*.2:0);offHandView.position.set(0,-Math.abs(Math.cos(bobP))*.02*bob,0)}
 
 /* ---------- ana döngü ---------- */
 function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000,.05);last=now;
